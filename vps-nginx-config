@@ -1,0 +1,36 @@
+server {
+    server_name suchicodes.com www.suchicodes.com;
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_pass http://localhost:8001;
+        include /etc/nginx/proxy_params;
+        proxy_set_header HTTP_Country-Code $geoip_country_code;
+        proxy_pass_request_headers on;
+        proxy_redirect off;
+    }
+
+    listen [::]:443 ssl; # managed by Certbot
+    listen 443 ssl; # managed by Certbot
+    ssl_certificate /etc/letsencrypt/live/suchicodes.com/fullchain.pem; # managed by Certbot
+    ssl_certificate_key /etc/letsencrypt/live/suchicodes.com/privkey.pem; # managed by Certbot
+    include /etc/letsencrypt/options-ssl-nginx.conf; # managed by Certbot
+    ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # managed by Certbot
+}
+
+server {
+    if ($host = suchicodes.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+    if ($host = www.suchicodes.com) {
+        return 301 https://$host$request_uri;
+    } # managed by Certbot
+
+
+    listen 80;
+    listen [::]:80;
+
+    server_name suchicodes.com www.suchicodes.com;
+    return 404; # managed by Certbot
+}
+
